@@ -1,0 +1,22 @@
+nombre;nombre_cientifico;tipo;ciclo_dias;altitud_min;altitud_max;temp_min;temp_max;precip_min_mm;precip_max_mm;tolerancia_inundacion;requiere_riego;grupos_cum;descripcion
+# VALORES REFERENCIALES INICIALES: el equipo debe validarlos y citar la fuente (FAO EcoCrop, INIA, MIDAGRI) antes de la entrega (tarea T14).
+Papa;Solanum tuberosum;TRANSITORIO;150;2500;4200;8;20;500;1200;BAJA;false;A;Tubérculo base de la alimentación andina.
+Maíz amiláceo;Zea mays;TRANSITORIO;180;2000;3500;10;24;500;1000;BAJA;false;A;Maíz de grano blanco o morado propio de los valles interandinos.
+Quinua;Chenopodium quinoa;TRANSITORIO;150;2500;4000;5;20;300;800;BAJA;false;A;Grano andino muy tolerante a la sequía y a las heladas.
+Haba;Vicia faba;TRANSITORIO;150;2500;3800;7;20;400;900;BAJA;false;A;Leguminosa que además mejora el suelo al fijar nitrógeno.
+Cebada;Hordeum vulgare;TRANSITORIO;150;2800;4000;6;20;400;900;BAJA;false;A;Cereal de altura para grano y forraje.
+Oca;Oxalis tuberosa;TRANSITORIO;210;2800;4000;6;18;500;1000;BAJA;false;A;Tubérculo andino tradicional de zonas altas.
+Tarwi;Lupinus mutabilis;TRANSITORIO;180;2500;3800;7;20;350;800;BAJA;false;A;Leguminosa andina rica en proteína.
+Arveja;Pisum sativum;TRANSITORIO;120;2000;3500;10;22;400;900;BAJA;false;A;Leguminosa de ciclo corto para grano verde o seco.
+Frijol;Phaseolus vulgaris;TRANSITORIO;110;500;2800;15;27;400;1000;BAJA;false;A;Leguminosa de valles templados.
+Avena forrajera;Avena sativa;PASTO;150;2500;4000;6;20;400;900;BAJA;false;A|P;Forraje para ganado en zonas altas.
+Alfalfa;Medicago sativa;PASTO;;0;3800;8;28;400;1200;BAJA;false;A|P;Forraje perenne de alto valor nutritivo.
+Maíz amarillo duro;Zea mays;TRANSITORIO;150;0;1500;18;32;500;1200;BAJA;false;A;Maíz para alimento de aves y ganado, propio de costa y selva.
+Arroz;Oryza sativa;TRANSITORIO;140;0;800;20;35;1000;2000;ALTA;true;A;Cereal que soporta suelos anegados, en la costa depende del riego.
+Limón;Citrus aurantiifolia;PERMANENTE;;0;1000;20;32;900;1500;BAJA;true;C;Frutal de la costa norte, requiere riego en zonas secas.
+Mango;Mangifera indica;PERMANENTE;;0;1000;22;35;700;1500;BAJA;true;C;Frutal de exportación de la costa norte.
+Palta;Persea americana;PERMANENTE;;0;2500;15;28;1000;1600;BAJA;true;C;Frutal de exportación, sensible al exceso de agua.
+Café;Coffea arabica;PERMANENTE;;600;2000;17;26;1200;2500;BAJA;false;C;Cultivo de ceja de selva y selva alta.
+Cacao;Theobroma cacao;PERMANENTE;;0;1200;22;32;1500;2800;MEDIA;false;C;Cultivo de selva, tolera algo de humedad en el suelo.
+Plátano;Musa paradisiaca;PERMANENTE;;0;1500;20;33;1200;2500;MEDIA;false;C;Frutal de selva y costa norte.
+Pino;Pinus radiata;FORESTAL;;2500;3800;8;20;600;1500;BAJA;false;F;Especie forestal para reforestación en sierra.
