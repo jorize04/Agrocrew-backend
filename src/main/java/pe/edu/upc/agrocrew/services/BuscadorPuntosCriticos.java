@@ -19,7 +19,7 @@ public class BuscadorPuntosCriticos {
 
     private final PuntoCriticoRepository puntoCriticoRepository;
 
-    public record PuntoCercano(PuntoCritico punto, int distanciaKm) {
+    public record PuntoCercano(PuntoCritico punto, double distanciaKm) {
     }
 
     public List<PuntoCercano> buscar(double latitud, double longitud, double radioKm) {
