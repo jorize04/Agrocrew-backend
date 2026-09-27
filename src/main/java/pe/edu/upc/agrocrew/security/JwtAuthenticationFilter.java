@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String PREFIJO = "Bearer ";
 
-    private final JwtUtil jwtUtil;
+    public final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
     @Override
