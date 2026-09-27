@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class AlertaDTO {
-    private Long ;
+    private Long id;
     private Long predioId;
     private String predio;
     private TipoAlerta tipo;
