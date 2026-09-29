@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ClimaDTO {
     private Long predioId;
-    /** Temperatura media de los últimos 12 meses (°C). */
+    /** Temperatura media de los últimos 1 meses (°C). */
     private Double temperaturaMedia;
     /** Lluvia acumulada en los últimos 12 meses (mm). */
     private Double precipitacionAnualMm;
