@@ -26,7 +26,7 @@ public class Alerta {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "punto_critico_id")
     private PuntoCritico puntoCritico;
-
+    // prueba de commit
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoAlerta tipo;
