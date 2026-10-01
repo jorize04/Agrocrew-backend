@@ -30,7 +30,7 @@ public class Alerta {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoAlerta tipo;
-
+    // prueba de commit
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private NivelRiesgo nivel;
