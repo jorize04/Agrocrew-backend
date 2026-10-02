@@ -28,7 +28,7 @@ public interface EvaluacionRepository extends JpaRepository<Evaluacion, Long> {
             + "FROM Evaluacion e LEFT JOIN e.grupoCum g "
             + "JOIN e.predio p JOIN p.distrito di JOIN di.provincia pr "
             + "WHERE (:departamentoId IS NULL OR pr.departamento.id = :departamentoId) "
-            + "GROUP BY g.codigo ORDER BY COUNT(e) DESC")
+            + "GROUP BY g.codigo ORDER BY COUNT(e) DESC, g.codigo")
     List<ReporteConteoDTO> reporteEvaluacionesPorGrupoCum(@Param("departamentoId") Long departamentoId);
 
     /** Reporte 5: predios evaluados por departamento y nivel de riesgo hídrico (JPQL). */
