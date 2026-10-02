@@ -12,7 +12,7 @@ import pe.edu.upc.agrocrew.models.ServicioExterno;
 import java.util.*;
 
 /**
- * Descarga los Puntos Críticos de riesgo hídrico publicados por la ANA
+ * Descarga los Puntos Crítico de riesgo hídrico publicados por la ANA
  * (servicio ArcGIS Público/PuntosCriticos, capa 125). En el log se muestran los campos
  * del primer registro para detectar si la ANA cambia la estructura de la capa.
  */
