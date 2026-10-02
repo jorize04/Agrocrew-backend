@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * Lee el header "Authorization: Bearer <token>" y, si el token es válido,
  * registra al usuario autenticado en el SecurityContext.
- * Se instancia en SecurityConfig (no es @Component) para que no se registre dos veces.
+ * Se instancia en SecurityConfig (no es @Component) para  no se registre dos veces.
  */
 @Slf4j
 @RequiredArgsConstructor
