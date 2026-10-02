@@ -32,7 +32,8 @@ public interface AlertaRepository extends JpaRepository<Alerta, Long> {
 
     /** Reporte 6: alertas generadas por mes y tipo en un año (SQL nativo). Cada fila: [mes, tipo, cantidad]. */
     @Query(value = "SELECT CAST(EXTRACT(MONTH FROM fecha_generacion) AS INTEGER) AS mes, tipo, COUNT(*) AS cantidad "
-            + "FROM alertas WHERE CAST(EXTRACT(YEAR FROM fecha_generacion) AS INTEGER) = :anio "
+            + "FROM alertas "
+            + "WHERE fecha_generacion >= make_date(:anio, 1, 1) AND fecha_generacion < make_date(:anio + 1, 1, 1) "
             + "GROUP BY 1, 2 ORDER BY 1, 2", nativeQuery = true)
     List<Object[]> reporteAlertasPorMes(@Param("anio") int anio);
 }
