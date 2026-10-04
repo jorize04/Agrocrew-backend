@@ -202,8 +202,8 @@ public class MotorReglasService {
             return new Factor(TipoFactor.RIESGO_HIDRICO, predio, requerido, EfectoFactor.FAVORABLE, max,
                     "El riesgo hídrico no afecta a este cultivo");
         }
-        boolean limitante = (tol == ToleranciaInundacion.BAJA && nivel.esAltoOMayor())
-                || (tol == ToleranciaInundacion.MEDIA && nivel == NivelRiesgo.MUY_ALTO);
+        boolean limitante = tol == ToleranciaInundacion.BAJA && nivel.esAltoOMayor()
+                || tol == ToleranciaInundacion.MEDIA && nivel == NivelRiesgo.MUY_ALTO;
         return limitante
                 ? new Factor(TipoFactor.RIESGO_HIDRICO, predio, requerido, EfectoFactor.LIMITANTE, 0,
                 "El cultivo tolera poco las inundaciones y el predio está en zona de riesgo")
