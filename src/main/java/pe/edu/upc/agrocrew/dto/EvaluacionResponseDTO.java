@@ -36,6 +36,7 @@ public class EvaluacionResponseDTO {
 
     private String explicacion;
     private boolean explicacionPorIa;
+    private String modeloIa;
     private String aviso;
 
     /** Ranking de cultivos compatibles (compatibilidad ALTA o MEDIA). Vacío si el terreno no es apto. */

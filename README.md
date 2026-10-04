@@ -37,11 +37,12 @@ Al iniciar por primera vez se cargan automáticamente: los roles `PRODUCTOR`, `A
 | Catálogo agronómico | `/api/v1/cultivos`, `/api/v1/grupos-cum`, `/api/v1/admin/cultivos` |
 | Suelo, clima y riesgo | `/api/v1/predios/{id}/suelo`, `/clima`, `/riesgo`, `/api/v1/puntos-criticos` |
 | Alertas | `/api/v1/alertas` |
-| Evaluaciones (motor de reglas) | `/api/v1/predios/{id}/evaluaciones`, `/api/v1/evaluaciones/{id}` |
+| Evaluaciones (motor de reglas + explicación con IA) | `/api/v1/predios/{id}/evaluaciones`, `/api/v1/evaluaciones/{id}` |
 | Reportes (ASESOR y ADMIN) | `/api/v1/reportes/**` |
 | Administración de integraciones | `/api/v1/admin/puntos-criticos/**`, `/api/v1/admin/integraciones` |
 
 - Fórmula del motor de reglas: `docs/motor-reglas.md`.
+- Inteligencia artificial: Google Gemini redacta la explicación de cada evaluación (variable `IA_API_KEY`; sin ella se usa una plantilla). Ver `ExplicacionIaService`.
 - Guía paso a paso para probar todo en Swagger: `docs/guia-pruebas-sprint1.md`.
 - Integraciones externas configurables en `application.properties` (URLs de MIDAGRI, ANA y Open-Meteo, radio de riesgo, umbral de lluvia y horarios de las tareas automáticas).
 
