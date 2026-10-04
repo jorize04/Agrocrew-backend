@@ -3,6 +3,7 @@ package pe.edu.upc.agrocrew.integraciones;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -14,6 +15,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -38,10 +40,24 @@ public class ClienteExterno {
     }
 
     public JsonNode getJson(ServicioExterno servicio, URI uri) {
+        return ejecutar(servicio, uri.toString(), () -> restClient.get().uri(uri).retrieve().body(String.class));
+    }
+
+    /** POST con cuerpo JSON. Los headers sirven para credenciales (no se guardan en la bitácora). */
+    public JsonNode postJson(ServicioExterno servicio, URI uri, Map<String, String> headers, Object cuerpo) {
+        return ejecutar(servicio, uri.toString(), () -> restClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(h -> headers.forEach(h::set))
+                .body(cuerpo)
+                .retrieve()
+                .body(String.class));
+    }
+
+    private JsonNode ejecutar(ServicioExterno servicio, String endpoint, Supplier<String> llamada) {
         long inicio = System.currentTimeMillis();
-        String endpoint = uri.toString();
         try {
-            String cuerpo = restClient.get().uri(uri).retrieve().body(String.class);
+            String cuerpo = llamada.get();
             JsonNode json = objectMapper.readTree(cuerpo == null ? "{}" : cuerpo);
 
             // Los servicios ArcGIS responden 200 pero con {"error": {...}} cuando algo falla.
