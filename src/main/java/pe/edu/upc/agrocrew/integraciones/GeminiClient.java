@@ -22,13 +22,13 @@ public class GeminiClient {
 
     private final ClienteExterno clienteExterno;
 
-    @Value("${app.ia.api-key:}")
+    @Value("${app.ia.api-key:${IA_API_KEY:}}")
     private String apiKey;
 
-    @Value("${app.ia.modelo}")
+    @Value("${app.ia.modelo:${IA_MODELO:gemini-2.5-flash}}")
     private String modelo;
 
-    @Value("${app.ia.url}")
+    @Value("${app.ia.url:https://generativelanguage.googleapis.com/v1beta/models}")
     private String urlBase;
 
     public boolean habilitado() {
