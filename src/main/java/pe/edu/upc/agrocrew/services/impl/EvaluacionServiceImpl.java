@@ -43,6 +43,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     private final GrupoCumRepository grupoCumRepository;
     private final EvaluacionRepository evaluacionRepository;
     private final AlertaRepository alertaRepository;
+    private final ExplicacionIaService explicacionIaService;
 
     @Value("${app.riesgo.radio-km:5}")
     private double radioKm;
@@ -140,8 +141,17 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 }
             }
         }
-        ev.setExplicacion(generarExplicacion(predio, grupo, datos, cercanos, ranking, resultadoConsultado, faltantes));
-        ev.setExplicacionPorIa(false);
+        // 6) Explicación: primero con IA; si no está configurada o falla, con plantilla.
+        Optional<ExplicacionIaService.Resultado> ia =
+                explicacionIaService.generar(predio, grupo, datos, ranking, resultadoConsultado);
+        if (ia.isPresent()) {
+            ev.setExplicacion(ia.get().texto());
+            ev.setExplicacionPorIa(true);
+            ev.setModeloIa(recortar(ia.get().modelo(), 60));
+        } else {
+            ev.setExplicacion(generarExplicacion(predio, grupo, datos, cercanos, ranking, resultadoConsultado, faltantes));
+            ev.setExplicacionPorIa(false);
+        }
 
         Evaluacion guardada = evaluacionRepository.save(ev);
         log.info("Evaluación {} del predio {}: estado={}, cultivos compatibles={}",
@@ -228,6 +238,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 : Arrays.asList(e.getFuentesFaltantes().split(",")));
         dto.setExplicacion(e.getExplicacion());
         dto.setExplicacionPorIa(Boolean.TRUE.equals(e.getExplicacionPorIa()));
+        dto.setModeloIa(e.getModeloIa());
         dto.setAviso(AVISO);
         dto.setRanking(rankingDe(e).stream().map(this::convertir).toList());
         if (e.getCultivoConsultado() != null) {
@@ -250,7 +261,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 r.getCultivo().getTipo(), r.getPuntaje(), r.getCompatibilidad(), factores);
     }
 
-    /** Explicación con plantilla (Sprint 1). En la Parte 2 se reemplaza por el texto del LLM (TS07). */
+    /** Explicación con plantilla: se usa cuando la IA no está configurada o no responde. */
     String generarExplicacion(Predio predio, GrupoCum grupo, MotorReglasService.DatosPredio d,
                               List<BuscadorPuntosCriticos.PuntoCercano> cercanos,
                               List<MotorReglasService.ResultadoCultivo> ranking,
