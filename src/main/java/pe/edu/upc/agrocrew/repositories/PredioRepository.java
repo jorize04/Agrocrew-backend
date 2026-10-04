@@ -19,7 +19,13 @@ public interface PredioRepository extends JpaRepository<Predio, Long> {
     /** Busca un predio solo si pertenece al usuario y no fue eliminado. */
     Optional<Predio> findByIdAndUsuarioIdAndActivoTrue(Long id, Long usuarioId);
 
+    /** Indica si el predio existe, es del usuario y no fue eliminado (sin cargar la entidad). */
+    boolean existsByIdAndUsuarioIdAndActivoTrue(Long id, Long usuarioId);
+
     long countByActivoTrue();
+
+    /** Cantidad de predios activos de un usuario. */
+    long countByUsuarioIdAndActivoTrue(Long usuarioId);
 
     /** Reporte 1: predios activos registrados por departamento (JPQL). */
     @Query("SELECT new pe.edu.upc.agrocrew.dto.ReporteConteoDTO(d.nombre, COUNT(p)) "
