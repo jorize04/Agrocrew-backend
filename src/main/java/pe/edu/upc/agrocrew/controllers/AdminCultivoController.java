@@ -24,7 +24,7 @@ public class AdminCultivoController {
     private final CultivoService cultivoService;
 
     @GetMapping
-    @Operation(summary = "Listar todos los cultivos, incluidos los desactivados")
+    @Operation(summary = "Listar todos los cultivo, incluidos los desactivados")
     public ResponseEntity<List<CultivoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(cultivoService.listarTodos());
     }
