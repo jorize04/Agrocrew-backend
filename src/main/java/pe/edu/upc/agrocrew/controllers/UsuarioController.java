@@ -11,6 +11,11 @@ import pe.edu.upc.agrocrew.dto.PerfilRequestDTO;
 import pe.edu.upc.agrocrew.dto.UsuarioResponseDTO;
 import pe.edu.upc.agrocrew.services.UsuarioService;
 
+/**
+ * Perfil del usuario autenticado.
+ *
+ * <p>Permite consultar y editar los datos personales de quien tiene la sesión iniciada.</p>
+ */
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
@@ -19,6 +24,11 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
+    /**
+     * Obtiene el perfil del usuario autenticado.
+     *
+     * @return el perfil del usuario; 401 si no hay token o es inválido
+     */
     @GetMapping("/me")
     @Operation(summary = "Obtener el perfil del usuario autenticado")
     @ApiResponse(responseCode = "200", description = "Perfil del usuario")
@@ -27,6 +37,12 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerPerfilActual());
     }
 
+    /**
+     * Edita los datos personales del usuario autenticado.
+     *
+     * @param dto nuevos datos del perfil, validados
+     * @return el perfil actualizado; 400 si los datos son inválidos
+     */
     @PutMapping("/me")
     @Operation(summary = "Editar mis datos personales")
     @ApiResponse(responseCode = "200", description = "Perfil actualizado")

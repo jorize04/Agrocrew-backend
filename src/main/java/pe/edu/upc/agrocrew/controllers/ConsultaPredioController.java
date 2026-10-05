@@ -17,6 +17,12 @@ import pe.edu.upc.agrocrew.services.ClimaService;
 import pe.edu.upc.agrocrew.services.RiesgoService;
 import pe.edu.upc.agrocrew.services.SueloService;
 
+/**
+ * Consulta de información de un predio: suelo, clima y riesgo hídrico.
+ *
+ * <p>Cada endpoint se apoya en una fuente externa: MIDAGRI para el suelo, Open-Meteo para el
+ * clima y la ANA para el riesgo hídrico. Solo es accesible para el rol {@code PRODUCTOR}.</p>
+ */
 @RestController
 @RequestMapping("/api/v1/predios/{predioId}")
 @RequiredArgsConstructor
@@ -28,6 +34,13 @@ public class ConsultaPredioController {
     private final ClimaService climaService;
     private final RiesgoService riesgoService;
 
+    /**
+     * Consulta la Capacidad de Uso Mayor (CUM) del suelo del predio, con una explicación sencilla.
+     *
+     * @param predioId identificador del predio
+     * @return la clasificación del suelo; indica que no hay dato si el MIDAGRI no tiene información
+     *         oficial, y responde 503 si el servicio no respondió
+     */
     @GetMapping("/suelo")
     @Operation(summary = "Capacidad de Uso Mayor del suelo del predio, con explicación sencilla")
     @ApiResponse(responseCode = "200", description = "Clasificación encontrada, o disponible=false si no hay dato oficial")
@@ -36,6 +49,15 @@ public class ConsultaPredioController {
         return ResponseEntity.ok(sueloService.consultarSueloDePredio(predioId));
     }
 
+    /**
+     * Obtiene el clima de los últimos 12 meses y el pronóstico de 7 días.
+     *
+     * <p>Si Open-Meteo falla, devuelve el último clima guardado y lo señala con
+     * {@code datosGuardados}; si tampoco hay datos guardados, responde 503.</p>
+     *
+     * @param predioId identificador del predio
+     * @return datos climáticos del predio
+     */
     @GetMapping("/clima")
     @Operation(summary = "Clima de los últimos 12 meses y pronóstico de 7 días")
     @ApiResponse(responseCode = "200", description = "Clima actual o, si Open-Meteo falla, el último guardado (datosGuardados=true)")
@@ -44,6 +66,12 @@ public class ConsultaPredioController {
         return ResponseEntity.ok(climaService.obtenerClimaDePredio(predioId));
     }
 
+    /**
+     * Calcula el nivel de riesgo hídrico según los puntos críticos de la ANA cercanos al predio.
+     *
+     * @param predioId identificador del predio
+     * @return nivel de riesgo y los puntos críticos considerados
+     */
     @GetMapping("/riesgo")
     @Operation(summary = "Nivel de riesgo hídrico según puntos críticos de la ANA cercanos")
     public ResponseEntity<RiesgoDTO> riesgo(@PathVariable Long predioId) {

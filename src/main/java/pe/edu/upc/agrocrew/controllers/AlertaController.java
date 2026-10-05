@@ -14,6 +14,12 @@ import pe.edu.upc.agrocrew.services.AlertaService;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Endpoints para consultar y gestionar las alertas del productor autenticado.
+ *
+ * <p>Las alertas informan sobre riesgo hídrico y lluvia intensa en los predios del usuario.
+ * Solo es accesible para el rol {@code PRODUCTOR}.</p>
+ */
 @RestController
 @RequestMapping("/api/v1/alertas")
 @RequiredArgsConstructor
@@ -23,6 +29,13 @@ public class AlertaController {
 
     private final AlertaService alertaService;
 
+    /**
+     * Lista las alertas del usuario, de la más reciente a la más antigua.
+     *
+     * @param leida {@code true} devuelve solo las leídas, {@code false} solo las no leídas;
+     *              si se omite, devuelve todas
+     * @return lista de alertas del usuario
+     */
     @GetMapping
     @Operation(summary = "Listar mis alertas, de la más reciente a la más antigua")
     public ResponseEntity<List<AlertaDTO>> listar(
@@ -31,12 +44,23 @@ public class AlertaController {
         return ResponseEntity.ok(alertaService.listarMisAlertas(leida));
     }
 
+    /**
+     * Devuelve la cantidad de alertas sin leer, útil para el indicador de la aplicación.
+     *
+     * @return mapa con la clave {@code noLeidas} y el total pendiente
+     */
     @GetMapping("/no-leidas/cantidad")
     @Operation(summary = "Cantidad de alertas sin leer (para el indicador de la app)")
     public ResponseEntity<Map<String, Long>> cantidadNoLeidas() {
         return ResponseEntity.ok(Map.of("noLeidas", alertaService.contarNoLeidas()));
     }
 
+    /**
+     * Marca una alerta como leída.
+     *
+     * @param id identificador de la alerta
+     * @return respuesta 204 sin contenido; 404 si no existe o no pertenece al usuario
+     */
     @PatchMapping("/{id}/leida")
     @Operation(summary = "Marcar una alerta como leída")
     @ApiResponse(responseCode = "204", description = "Alerta marcada como leída")

@@ -15,6 +15,12 @@ import pe.edu.upc.agrocrew.services.PredioService;
 
 import java.util.List;
 
+/**
+ * CRUD de los predios (terrenos) del productor autenticado.
+ *
+ * <p>Un productor solo puede ver y modificar sus propios predios. Solo es accesible para el
+ * rol {@code PRODUCTOR}.</p>
+ */
 @RestController
 @RequestMapping("/api/v1/predios")
 @RequiredArgsConstructor
@@ -24,6 +30,13 @@ public class PredioController {
 
     private final PredioService predioService;
 
+    /**
+     * Registra un predio nuevo.
+     *
+     * @param dto datos del predio validados
+     * @return el predio creado con código 201; 400 si los datos son inválidos, la ubicación está
+     *         fuera del Perú o el distrito no existe
+     */
     @PostMapping
     @Operation(summary = "Registrar un predio")
     @ApiResponse(responseCode = "201", description = "Predio registrado")
@@ -32,6 +45,11 @@ public class PredioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(predioService.registrar(dto));
     }
 
+    /**
+     * Lista los predios del usuario autenticado.
+     *
+     * @return lista de predios, vacía si no tiene ninguno
+     */
     @GetMapping
     @Operation(summary = "Listar mis predios")
     @ApiResponse(responseCode = "200", description = "Lista de predios (vacía si no tiene)")
@@ -39,6 +57,12 @@ public class PredioController {
         return ResponseEntity.ok(predioService.listarMisPredios());
     }
 
+    /**
+     * Obtiene un predio del usuario.
+     *
+     * @param id identificador del predio
+     * @return el predio; 404 si no existe o no pertenece al usuario
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener un predio")
     @ApiResponse(responseCode = "200", description = "Predio encontrado")
@@ -47,6 +71,14 @@ public class PredioController {
         return ResponseEntity.ok(predioService.obtener(id));
     }
 
+    /**
+     * Actualiza los datos de un predio.
+     *
+     * @param id  identificador del predio
+     * @param dto nuevos datos del predio, validados
+     * @return el predio actualizado; 400 si los datos son inválidos, 404 si no existe o
+     *         no pertenece al usuario
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Editar un predio")
     @ApiResponse(responseCode = "200", description = "Predio actualizado")
@@ -57,6 +89,12 @@ public class PredioController {
         return ResponseEntity.ok(predioService.actualizar(id, dto));
     }
 
+    /**
+     * Elimina un predio.
+     *
+     * @param id identificador del predio
+     * @return respuesta 204 sin contenido; 404 si no existe o no pertenece al usuario
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un predio")
     @ApiResponse(responseCode = "204", description = "Predio eliminado")

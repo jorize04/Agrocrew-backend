@@ -14,6 +14,12 @@ import pe.edu.upc.agrocrew.dto.EvaluacionResponseDTO;
 import pe.edu.upc.agrocrew.dto.EvaluacionResumenDTO;
 import pe.edu.upc.agrocrew.services.EvaluacionService;
 
+/**
+ * Endpoints para evaluar un predio y consultar el historial de evaluaciones.
+ *
+ * <p>Cada evaluación produce un ranking de cultivos compatibles con el predio. Solo es
+ * accesible para el rol {@code PRODUCTOR}.</p>
+ */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -23,6 +29,17 @@ public class EvaluacionController {
 
     private final EvaluacionService evaluacionService;
 
+    /**
+     * Evalúa el predio y devuelve el ranking de cultivos compatibles.
+     *
+     * <p>El cuerpo es opcional: si incluye un {@code cultivoId}, se evalúa además ese cultivo
+     * específico.</p>
+     *
+     * @param predioId identificador del predio a evaluar
+     * @param dto      datos opcionales de la evaluación
+     * @return la evaluación creada con código 201 (estado COMPLETADA o PARCIAL);
+     *         404 si el predio o el cultivo no existen
+     */
     @PostMapping("/predios/{predioId}/evaluaciones")
     @Operation(summary = "Evaluar el predio y obtener el ranking de cultivos",
             description = "El cuerpo es opcional. Envíe {\"cultivoId\": N} para evaluar además un cultivo específico.")
@@ -33,6 +50,14 @@ public class EvaluacionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(evaluacionService.evaluar(predioId, dto));
     }
 
+    /**
+     * Lista el historial de evaluaciones de un predio de forma paginada.
+     *
+     * @param predioId identificador del predio
+     * @param pagina   número de página, empezando en 0 (por defecto 0)
+     * @param tamano   cantidad de elementos por página (por defecto 10)
+     * @return página con el resumen de cada evaluación
+     */
     @GetMapping("/predios/{predioId}/evaluaciones")
     @Operation(summary = "Historial de evaluaciones del predio (paginado)")
     public ResponseEntity<Page<EvaluacionResumenDTO>> historial(@PathVariable Long predioId,
@@ -41,6 +66,12 @@ public class EvaluacionController {
         return ResponseEntity.ok(evaluacionService.historial(predioId, pagina, tamano));
     }
 
+    /**
+     * Obtiene el detalle de una evaluación.
+     *
+     * @param id identificador de la evaluación
+     * @return la evaluación completa; 404 si no existe o no pertenece al usuario
+     */
     @GetMapping("/evaluaciones/{id}")
     @Operation(summary = "Detalle de una evaluación")
     @ApiResponse(responseCode = "404", description = "No existe o no pertenece al usuario")
