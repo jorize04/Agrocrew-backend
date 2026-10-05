@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+/import
 import static org.junit.jupiter.api.Assertions.*;
 
 class CumParserTest {
