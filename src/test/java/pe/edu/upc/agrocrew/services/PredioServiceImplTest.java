@@ -63,7 +63,7 @@ class PredioServiceImplTest {
 
         when(usuarioService.obtenerUsuarioActual()).thenReturn(usuario);
     }
-/*Pruebas*
+
     @Test
     void registrar_sinAltitud_usaLaAltitudDelDistrito() {
         when(distritoRepository.findById(10L)).thenReturn(Optional.of(distrito));
