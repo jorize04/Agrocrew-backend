@@ -9,7 +9,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Pruebas del motor de reglas (T27). No necesita mocks porque no depende de la base de datos. */
+/** Pruebas del motor de reglas (T27). No necesita mocks, porque no depende de la base de datos. */
 class MotorReglasServiceTest {
 
     private MotorReglasService motor;
