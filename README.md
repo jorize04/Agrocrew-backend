@@ -1,93 +1,178 @@
-# AgroCrew – Backend (API REST)
+# AgroCrew · Backend (API REST)
 
-API de AgroCrew para evaluar la aptitud agrícola de un predio (MIDAGRI), su riesgo hídrico (ANA) y su clima (Open-Meteo), y recomendar cultivos compatibles.
+**AgroCrew** ayuda a pequeños productores agrícolas del Perú a decidir qué sembrar. La API cruza datos oficiales de suelos (MIDAGRI / SERFOR), riesgo de inundación (ANA) y clima (Open-Meteo), calcula qué cultivos son compatibles con cada terreno y usa inteligencia artificial para explicar el resultado en lenguaje sencillo.
 
-Curso: Arquitectura de Aplicaciones Web (SI705) – UPC, 2026-20.
+| | |
+|---|---|
+| **API desplegada (Swagger)** | http://agrocrew-backend.us-east-1.elasticbeanstalk.com/swagger-ui.html |
+| **Landing page** | https://jorize04.github.io/agrocrew-landing/ |
+| **Curso** | Arquitectura de Aplicaciones Web (SI705) · UPC · 2026-20 |
+
+---
+
+## Funcionalidades
+
+- **Usuarios y seguridad:** registro, inicio de sesión con JWT y tres roles (productor, asesor y administrador).
+- **Predios:** registro y gestión de terrenos con departamento, provincia y distrito (ubigeo del INEI).
+- **Suelo:** clasificación oficial de Capacidad de Uso Mayor del predio, traducida a lenguaje simple.
+- **Clima:** temperatura y lluvia de los últimos 12 meses y pronóstico de 7 días.
+- **Riesgo hídrico:** puntos críticos de inundación de la ANA a menos de 5 km del predio.
+- **Evaluación y ranking:** un motor de reglas puntúa cada cultivo según suelo, altitud, temperatura, agua y riesgo.
+- **Explicación con IA:** Google Gemini redacta el resultado en lenguaje sencillo, en español o inglés.
+- **Alertas:** avisos automáticos por cercanía a zonas de inundación o lluvias intensas pronosticadas.
+- **Reportes:** indicadores por zona para asesores técnicos y gobiernos locales.
+
+## Inteligencia artificial
+
+| | |
+|---|---|
+| **Problema que resuelve** | El resultado del motor de reglas (puntajes y factores) es técnico. La IA lo convierte en una explicación breve que un productor sin formación técnica puede entender. |
+| **Modelo** | Google Gemini (`gemini-2.5-flash`, configurable), mediante su API REST. |
+| **Datos que usa** | Solo los datos de la evaluación: suelo, altitud, clima, fuente de agua, riesgo y ranking. No se envían datos personales. |
+| **Límites** | La IA solo redacta: el ranking lo decide el motor de reglas, que es determinístico. Si la IA no está configurada o falla, se usa una explicación con plantilla y la evaluación se completa igual. |
+
+La explicación se genera en inglés cuando la petición llega con `Accept-Language: en`.
+
+## Arquitectura
+
+```
+Cliente (Swagger / frontend)
+        │  HTTP + JWT
+        ▼
+AWS Elastic Beanstalk ── Spring Boot 3.5 · Java 21
+        │                   │
+        │                   ├── SERFOR / MIDAGRI (suelos)
+        │                   ├── ANA (puntos críticos)
+        │                   ├── Open-Meteo (clima)
+        │                   └── Google Gemini (IA)
+        ▼
+Amazon RDS · PostgreSQL
+```
+
+Las credenciales, la clave JWT y la API key de la IA se configuran como variables de entorno; nunca se guardan en el código.
 
 ## Tecnologías
 
-Java 21 · Spring Boot 3.5 · Spring Data JPA · PostgreSQL · Spring Security 6 + JWT (jjwt) · Bean Validation · Lombok · Springdoc OpenAPI (Swagger) · JUnit 5 + Mockito · SLF4J/Logback · AWS.
+Java 21 · Spring Boot 3.5 · Spring Data JPA · PostgreSQL · Spring Security 6 + JWT (jjwt) · Bean Validation · Lombok · Springdoc OpenAPI (Swagger) · JUnit 5 + Mockito · SLF4J / Logback · AWS Elastic Beanstalk · Amazon RDS · Google Gemini API.
 
-## Cómo ejecutar en local
+## Ejecutar en local
 
-1. Tener instalado JDK 21 y PostgreSQL 14+.
-2. Crear la base de datos:
+**Requisitos:** JDK 21 y PostgreSQL 14 o superior.
+
+1. Crea la base de datos:
    ```sql
    CREATE DATABASE agrocrew_db;
    ```
-3. Crear un archivo `.env` en la carpeta del proyecto (junto a `pom.xml`) copiando `.env.example`, y poner tu contraseña de PostgreSQL en `DB_PASSWORD`. Ese archivo no se sube a GitHub.
-4. Ejecutar `AgrocrewApplication` desde el IDE, o `mvn spring-boot:run`.
-5. Abrir Swagger: http://localhost:8080/swagger-ui.html
+2. Revisa en `src/main/resources/application.properties` la contraseña local de PostgreSQL (`spring.datasource.password`), o define la variable de entorno `DB_PASSWORD`.
+3. Opcional, para activar la IA: define la variable de entorno `IA_API_KEY` con una API key de [Google AI Studio](https://aistudio.google.com). Sin ella, la explicación se genera con plantilla.
+4. Ejecuta `AgrocrewApplication` desde el IDE, o:
+   ```bash
+   mvn spring-boot:run
+   ```
+5. Abre http://localhost:8080/swagger-ui.html
 
-Al iniciar por primera vez se cargan automáticamente: los roles `PRODUCTOR`, `ASESOR` y `ADMIN`; el ubigeo del Perú (25 departamentos, 196 provincias, 1892 distritos); los 5 grupos CUM y 20 cultivos iniciales (`resources/data/cultivos.csv`). Si en `.env` están `ADMIN_EMAIL` y `ADMIN_PASSWORD`, también se crea el usuario administrador.
+En la primera ejecución se cargan automáticamente los roles, el ubigeo del Perú (25 departamentos, 196 provincias y 1892 distritos), los 5 grupos de Capacidad de Uso Mayor, 20 cultivos con sus requerimientos y el usuario administrador.
 
-### Probar la autenticación
+### Primeros pasos en Swagger
 
 1. `POST /api/v1/auth/register` con `tipoUsuario` = `PRODUCTOR` o `ASESOR`.
-2. `POST /api/v1/auth/login` → copiar el `token`.
-3. En Swagger pulsar **Authorize** y pegar el token.
-4. `GET /api/v1/usuarios/me` debe devolver tu perfil. Sin token devuelve 401.
+2. `POST /api/v1/auth/login` y copia el `token`.
+3. Pulsa **Authorize** y pega el token.
+4. `GET /api/v1/usuarios/me` devuelve tu perfil; sin token responde 401.
 
-## Módulos del Sprint 1
+La guía completa de pruebas está en [`docs/guia-pruebas-sprint1.md`](docs/guia-pruebas-sprint1.md).
 
-| Módulo | Endpoints principales |
+## Endpoints principales
+
+| Módulo | Endpoints | Roles |
+|---|---|---|
+| Autenticación | `/api/v1/auth/register`, `/api/v1/auth/login` | Público |
+| Perfil | `/api/v1/usuarios/me` | Todos |
+| Ubigeo | `/api/v1/ubigeo/**` | Todos |
+| Predios | `/api/v1/predios` (CRUD) | Productor |
+| Suelo, clima y riesgo | `/api/v1/predios/{id}/suelo`, `/clima`, `/riesgo` | Productor |
+| Evaluaciones | `/api/v1/predios/{id}/evaluaciones`, `/api/v1/evaluaciones/{id}` | Productor |
+| Alertas | `/api/v1/alertas` | Productor |
+| Catálogo | `/api/v1/cultivos`, `/api/v1/grupos-cum` | Todos |
+| Reportes | `/api/v1/reportes/**` | Asesor, Admin |
+| Administración | `/api/v1/admin/usuarios`, `/admin/cultivos`, `/admin/puntos-criticos`, `/admin/integraciones` | Admin |
+
+### Reportes (consultas personalizadas)
+
+| Reporte | Consulta |
 |---|---|
-| Autenticación y usuarios | `/api/v1/auth/**`, `/api/v1/usuarios/me`, `/api/v1/admin/usuarios` |
-| Ubigeo y predios | `/api/v1/ubigeo/**`, `/api/v1/predios` |
-| Catálogo agronómico | `/api/v1/cultivos`, `/api/v1/grupos-cum`, `/api/v1/admin/cultivos` |
-| Suelo, clima y riesgo | `/api/v1/predios/{id}/suelo`, `/clima`, `/riesgo`, `/api/v1/puntos-criticos` |
-| Alertas | `/api/v1/alertas` |
-| Evaluaciones (motor de reglas + explicación con IA) | `/api/v1/predios/{id}/evaluaciones`, `/api/v1/evaluaciones/{id}` |
-| Reportes (ASESOR y ADMIN) | `/api/v1/reportes/**` |
-| Administración de integraciones | `/api/v1/admin/puntos-criticos/**`, `/api/v1/admin/integraciones` |
+| Indicadores de la plataforma | Conteos |
+| Predios por departamento | JPQL |
+| Evaluaciones por grupo de suelo (filtro por departamento) | JPQL |
+| Cultivos más recomendados (filtros y paginación) | JPQL |
+| Predios por nivel de riesgo | JPQL |
+| Puntos críticos por departamento | SQL nativo |
+| Alertas por mes | SQL nativo |
 
-- Fórmula del motor de reglas: `docs/motor-reglas.md`.
-- Inteligencia artificial: Google Gemini redacta la explicación de cada evaluación (variable `IA_API_KEY`; sin ella se usa una plantilla). Ver `ExplicacionIaService`.
-- Guía paso a paso para probar todo en Swagger: `docs/guia-pruebas-sprint1.md`.
-- Integraciones externas configurables en `application.properties` (URLs de MIDAGRI, ANA y Open-Meteo, radio de riesgo, umbral de lluvia y horarios de las tareas automáticas).
+## Motor de reglas
 
-## Estructura de paquetes
+Cada cultivo recibe un puntaje de 0 a 100 según cinco factores: suelo (30), altitud (20), temperatura (20), agua (20) y riesgo hídrico (10). Con 75 o más la compatibilidad es **ALTA**; de 50 a 74, **MEDIA**; y por debajo de 50, **BAJA**. Un factor limitante de suelo, altitud o temperatura deja al cultivo en BAJA. El detalle está en [`docs/motor-reglas.md`](docs/motor-reglas.md).
+
+## Pruebas
+
+```bash
+mvn test
+```
+
+Pruebas unitarias con JUnit 5 y Mockito para autenticación, predios, catálogo, motor de reglas, lectura de la clasificación de suelos, reportes y el servicio de IA.
+
+## Variables de entorno
+
+| Variable | Descripción | Por defecto |
+|---|---|---|
+| `DB_URL` | URL JDBC de PostgreSQL | `jdbc:postgresql://localhost:5432/agrocrew_db` |
+| `DB_USERNAME`, `DB_PASSWORD` | Credenciales de la base de datos | Valores locales |
+| `JWT_SECRET` | Clave Base64 de al menos 32 bytes | Clave de desarrollo |
+| `JWT_EXPIRATION_MS` | Duración del token | 24 horas |
+| `CORS_ORIGINS` | Orígenes permitidos del frontend, separados por coma | `localhost:4200`, `localhost:5173` |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Administrador inicial | Valores de desarrollo |
+| `IA_API_KEY` | API key de Google Gemini | Sin IA (plantilla) |
+| `IA_MODELO` | Modelo de Gemini | `gemini-2.5-flash` |
+| `PORT` | Puerto del servidor | `8080` |
+
+En producción todas estas variables se definen en Elastic Beanstalk, con valores distintos a los de desarrollo.
+
+## Estructura del proyecto
 
 ```
 pe.edu.upc.agrocrew
-├── config        Configuración general (Swagger, datos iniciales)
-├── controllers   Endpoints REST (solo reciben/validan y llaman al servicio)
-├── dto           Objetos de entrada/salida de la API (nunca exponer entidades)
-├── exceptions    Excepciones propias y GlobalExceptionHandler
-├── integraciones Clientes de servicios externos (MIDAGRI, ANA, Open-Meteo)
-├── models        Entidades JPA (tablas) y enums
-├── repositories  Interfaces Spring Data JPA
-├── security      JWT, filtro, SecurityConfig, utilitario UsuarioActual
-├── services      Interfaces de servicio y motor de reglas
-│   └── impl      Implementaciones con la lógica de negocio
-└── util          Utilidades (distancias, interpretación de la CUM)
+├── config         Configuración general, carga inicial de datos y tareas programadas
+├── controllers    Endpoints REST
+├── dto            Objetos de entrada y salida de la API
+├── exceptions     Excepciones propias y manejador global de errores
+├── integraciones  Clientes de SERFOR/MIDAGRI, ANA, Open-Meteo y Google Gemini
+├── models         Entidades JPA y enums
+├── repositories   Repositorios Spring Data JPA y consultas personalizadas
+├── security       JWT, filtro de autenticación y configuración de seguridad
+├── services       Interfaces, motor de reglas y servicio de IA
+│   └── impl       Lógica de negocio
+└── util           Utilidades (distancias, lectura de la clasificación de suelos)
 ```
 
-### Convenciones del equipo
+## Flujo de trabajo
 
-- Rutas: `/api/v1/<recurso-en-plural>` (ej. `/api/v1/predios`). Rutas de administración bajo `/api/v1/admin/**` (solo rol ADMIN).
-- Tablas en español, snake_case y plural (`@Table(name = "predios")`). Atributos Java en camelCase: Hibernate los convierte a snake_case.
-- Para errores lanzar `RecursoNoEncontradoException` (404), `ConflictoException` (409) o `ReglaNegocioException` (400). No devolver `null` ni construir respuestas de error a mano.
-- Para obtener el usuario logueado dentro de un servicio: inyectar `UsuarioService` y llamar `obtenerUsuarioActual()`.
-- Restringir por rol un endpoint: `@PreAuthorize("hasRole('ASESOR')")`.
-- Logs con `@Slf4j`: `log.info` para eventos de negocio, `log.warn` para errores del cliente, `log.error` para fallos inesperados o de integraciones.
+- `master`: versión estable, desplegada en AWS.
+- `develop`: integración del sprint.
+- `feature/<integrante>`: rama de trabajo de cada integrante.
+- Los cambios llegan a `develop` y luego a `master` mediante Pull Requests.
+- Commits con prefijos: `feat:`, `fix:`, `test:`, `docs:`.
 
-## Flujo de trabajo en Git
+## Equipo
 
-- `main`: versión desplegada en AWS. `develop`: integración del sprint.
-- Cada tarea del Sprint Backlog se trabaja en su propia rama desde `develop`: `feature/T10-entidad-predio`.
-- Mensajes de commit: `feat(predios): crear entidad Predio y DTOs (T10)`, `fix(auth): ...`, `test(...)`, `docs(...)`.
-- Se integra a `develop` mediante Pull Request revisado por otro integrante.
-- Nunca subir contraseñas ni el archivo `.env`.
+| Integrante |
+|---|
+| Adrian Estrada Ochoa |
+| Axel Yerico De La Cruz Huamán |
+| José Rivera Zelaya |
+| Mauricio Valverde Barrera |
+| Ronaldo Torres Lizana |
+| Saul Lujan Chu |
 
-## Variables de entorno (AWS)
+---
 
-| Variable | Descripción |
-|---|---|
-| `DB_URL` | `jdbc:postgresql://<host-rds>:5432/agrocrew_db` |
-| `DB_USERNAME`, `DB_PASSWORD` | Credenciales de la base de datos |
-| `JWT_SECRET` | Clave Base64 de al menos 32 bytes (distinta a la de desarrollo) |
-| `JWT_EXPIRATION_MS` | Duración del token (por defecto 24 h) |
-| `CORS_ORIGINS` | Orígenes del frontend separados por coma |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Administrador inicial (opcional) |
-| `PORT` | Puerto del servidor (por defecto 8080) |
+Proyecto académico. Las recomendaciones de AgroCrew son referenciales y no reemplazan la evaluación de un ingeniero agrónomo.
