@@ -15,11 +15,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GrupoCum {
-
+    /** Identificador único del grupo CUM, autogenerado por la base de datos. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    /**
+     * Código oficial del grupo CUM según la clasificación de MIDAGRI (2 caracteres).
+     * Debe ser único, ya que identifica cada uno de los 5 grupos del catálogo.
+     */
     @Column(nullable = false, unique = true, length = 2)
     private String codigo;
 

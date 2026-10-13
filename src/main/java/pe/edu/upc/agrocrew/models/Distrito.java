@@ -11,11 +11,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Distrito {
-
+    /** Identificador único del distrito, autogenerado por la base de datos. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    /**
+     * Provincia a la que pertenece este distrito.
+     * Relación muchos-a-uno: varios distritos pueden pertenecer a la misma provincia.
+     * fetch = LAZY: la provincia no se carga automáticamente, solo cuando se accede a ella explícitamente (mejora el rendimiento).
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "provincia_id", nullable = false)
     private Provincia provincia;

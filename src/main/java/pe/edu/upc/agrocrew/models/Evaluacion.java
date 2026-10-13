@@ -20,10 +20,15 @@ import java.util.List;
 @NoArgsConstructor
 public class Evaluacion {
 
+    /** Identificador único de la evaluación, autogenerado por la base de datos. */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    /**
+     * Predio sobre el cual se realiza la evaluación.
+     * Relación obligatoria: toda evaluación pertenece a un único predio.
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "predio_id", nullable = false)
     private Predio predio;
@@ -35,7 +40,10 @@ public class Evaluacion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cultivo_consultado_id")
     private Cultivo cultivoConsultado;
-
+    /**
+     * Punto crítico de riesgo hídrico (ANA) más cercano relacionado con esta evaluación.
+     * Nulo si no hay puntos críticos dentro del radio configurado.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "punto_critico_id")
     private PuntoCritico puntoCritico;
