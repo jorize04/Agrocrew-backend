@@ -57,6 +57,13 @@ public class Predio {
 
     private LocalDateTime fechaActualizacion;
 
+    /**
+     * Fecha de la evaluación más reciente del predio (T79, tarjeta "Mis predios").
+     * Es de solo lectura: Hibernate la calcula con una subconsulta y no crea ninguna columna.
+     */
+    @org.hibernate.annotations.Formula("(SELECT MAX(e.fecha) FROM evaluaciones e WHERE e.predio_id = id)")
+    private LocalDateTime ultimaEvaluacion;
+
     @PrePersist
     void alRegistrar() {
         this.fechaRegistro = LocalDateTime.now();
