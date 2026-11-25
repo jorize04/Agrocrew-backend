@@ -30,6 +30,13 @@ public interface AlertaRepository extends JpaRepository<Alerta, Long> {
 
     long countByLeidaFalse();
 
+    /* Solo alertas de predios activos: un predio eliminado (eliminación lógica) deja de mostrar sus alertas. */
+    List<Alerta> findByPredioUsuarioIdAndPredioActivoTrueOrderByFechaGeneracionDesc(Long usuarioId);
+
+    List<Alerta> findByPredioUsuarioIdAndPredioActivoTrueAndLeidaOrderByFechaGeneracionDesc(Long usuarioId, Boolean leida);
+
+    long countByPredioUsuarioIdAndPredioActivoTrueAndLeidaFalse(Long usuarioId);
+
     /** Reporte 6: alertas generadas por mes y tipo en un año (SQL nativo). Cada fila: [mes, tipo, cantidad]. */
     @Query(value = "SELECT CAST(EXTRACT(MONTH FROM fecha_generacion) AS INTEGER) AS mes, tipo, COUNT(*) AS cantidad "
             + "FROM alertas WHERE CAST(EXTRACT(YEAR FROM fecha_generacion) AS INTEGER) = :anio "
