@@ -88,6 +88,7 @@ public class ReporteServiceImpl implements ReporteService {
     public IndicadoresDTO indicadores() {
         log.info("Reporte: indicadores generales");
         long evaluaciones = evaluacionRepository.count();
+        long calificaciones = evaluacionRepository.contarCalificaciones();
         return new IndicadoresDTO(
                 usuarioRepository.countByRolNombre(Rol.PRODUCTOR),
                 usuarioRepository.countByRolNombre(Rol.ASESOR),
@@ -98,10 +99,13 @@ public class ReporteServiceImpl implements ReporteService {
                 alertaRepository.count(),
                 alertaRepository.countByLeidaFalse(),
                 puntoCriticoRepository.count(),
-                cultivoRepository.countByActivoTrue());
+                cultivoRepository.countByActivoTrue(),
+                calificaciones,
+                porcentaje(evaluacionRepository.contarCalificacionesUtiles(), calificaciones));
     }
 
     private double porcentaje(long parte, long total) {
         return total == 0 ? 0 : Math.round(parte * 1000.0 / total) / 10.0;
     }
 }
+
