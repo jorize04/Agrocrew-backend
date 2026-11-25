@@ -23,6 +23,14 @@ public interface EvaluacionRepository extends JpaRepository<Evaluacion, Long> {
 
     long countByAlertaActivaFalse();
 
+    /** Sprint 3 (US34): total de evaluaciones calificadas por los productores. */
+    @Query("SELECT COUNT(c) FROM Calificacion c")
+    long contarCalificaciones();
+
+    /** Sprint 3 (US34): calificaciones de 4 o 5 (la recomendación le fue útil al productor). */
+    @Query("SELECT COUNT(c) FROM Calificacion c WHERE c.puntaje >= 4")
+    long contarCalificacionesUtiles();
+
     /** Reporte 2: evaluaciones por grupo de Capacidad de Uso Mayor, opcionalmente de un departamento (JPQL). */
     @Query("SELECT new pe.edu.upc.agrocrew.dto.ReporteConteoDTO(COALESCE(g.codigo, 'SIN CLASIFICACION'), COUNT(e)) "
             + "FROM Evaluacion e LEFT JOIN e.grupoCum g "
