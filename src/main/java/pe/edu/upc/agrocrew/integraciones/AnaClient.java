@@ -129,9 +129,12 @@ public class AnaClient {
         return sb.isEmpty() ? null : sb.toString();
     }
 
-    /** La ANA suele publicar "Sin Especificar"; en ese caso se usa el peligro típico de estos puntos. */
+    /**
+     * Tipo de peligro (Inundación, Erosión fluvial, Flujo de detritos...). Ojo: el campo "Peligro" de la ANA es el
+     * NIVEL (Muy Alto, Alto, Medio), no el tipo, así que no se usa aquí. Si viene vacío, se usa el peligro típico.
+     */
     private String tipoPeligro(JsonNode a) {
-        for (String campo : List.of("Peligro", "TiposPeligro", "tipos_peligro")) {
+        for (String campo : List.of("TiposPeligro", "tipos_peligro")) {
             String v = valor(a, campo);
             if (v != null && !v.toLowerCase().contains("sin especificar")) {
                 return v;
@@ -141,10 +144,14 @@ public class AnaClient {
     }
 
     /**
-     * La capa de la ANA no publica un nivel de riesgo. Criterio del proyecto: todo punto crítico es riesgo ALTO,
-     * y MUY_ALTO si expone a 50 o más familias/viviendas o a un centro educativo o de salud.
+     * Nivel oficial de la ANA (campo "Peligro": Muy Alto, Alto o Medio). Si dice "Sin Especificar", se aplica el
+     * criterio del proyecto: ALTO, y MUY_ALTO si expone a 50 o más familias/viviendas o a un centro educativo o de salud.
      */
     private NivelRiesgo nivel(JsonNode a) {
+        String oficial = valor(a, "Peligro");
+        if (oficial != null && !oficial.toLowerCase().contains("sin especificar")) {
+            return NivelRiesgo.desdeTexto(oficial);
+        }
         int familias = a.path("Familias").asInt(0);
         int viviendas = a.path("Viviendas").asInt(0);
         int educativos = a.path("CentroEducativo").asInt(0);
