@@ -119,6 +119,8 @@ public class PredioServiceImpl implements PredioService {
         dto.setDepartamento(p.getDistrito().getProvincia().getDepartamento().getNombre());
         dto.setFechaRegistro(p.getFechaRegistro());
         dto.setFechaActualizacion(p.getFechaActualizacion());
+        dto.setUltimaEvaluacion(p.getUltimaEvaluacion());
         return dto;
     }
 }
+
