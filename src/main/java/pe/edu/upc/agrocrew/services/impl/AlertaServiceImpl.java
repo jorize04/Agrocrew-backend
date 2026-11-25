@@ -128,15 +128,15 @@ public class AlertaServiceImpl implements AlertaService {
     public List<AlertaDTO> listarMisAlertas(Boolean leida) {
         Long usuarioId = usuarioService.obtenerUsuarioActual().getId();
         List<Alerta> alertas = leida == null
-                ? alertaRepository.findByPredioUsuarioIdOrderByFechaGeneracionDesc(usuarioId)
-                : alertaRepository.findByPredioUsuarioIdAndLeidaOrderByFechaGeneracionDesc(usuarioId, leida);
+                ? alertaRepository.findByPredioUsuarioIdAndPredioActivoTrueOrderByFechaGeneracionDesc(usuarioId)
+                : alertaRepository.findByPredioUsuarioIdAndPredioActivoTrueAndLeidaOrderByFechaGeneracionDesc(usuarioId, leida);
         return alertas.stream().map(this::convertir).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public long contarNoLeidas() {
-        return alertaRepository.countByPredioUsuarioIdAndLeidaFalse(usuarioService.obtenerUsuarioActual().getId());
+        return alertaRepository.countByPredioUsuarioIdAndPredioActivoTrueAndLeidaFalse(usuarioService.obtenerUsuarioActual().getId());
     }
 
     @Override
