@@ -43,4 +43,6 @@ public class PredioResponseDTO {
     private LocalDateTime fechaRegistro;
     /** Fecha y hora de la última actualización. */
     private LocalDateTime fechaActualizacion;
+    /** Fecha y hora de la última evaluación del predio; nulo si aún no se evaluó. */
+    private LocalDateTime ultimaEvaluacion;
 }
