@@ -18,6 +18,7 @@ import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,6 +73,20 @@ class ExplicacionIaServiceTest {
         when(geminiClient.generarTexto(anyString())).thenThrow(new IntegracionException("timeout"));
 
         assertTrue(service.generar(predio(), null, datos, List.of(), null).isEmpty());
+    }
+
+    @Test
+    void siElModeloPrincipalFalla_usaElModeloDeRespaldo() {
+        when(geminiClient.habilitado()).thenReturn(true);
+        when(geminiClient.getModelo()).thenReturn("gemini-3.5-flash-lite");
+        when(geminiClient.getModeloRespaldo()).thenReturn("gemini-3.1-flash-lite");
+        when(geminiClient.generarTexto(anyString())).thenThrow(new IntegracionException("503"));
+        when(geminiClient.generarTexto(anyString(), eq("gemini-3.1-flash-lite"))).thenReturn("Explicación del respaldo.");
+
+        var r = service.generar(predio(), null, datos, List.of(), null).orElseThrow();
+
+        assertEquals("Explicación del respaldo.", r.texto());
+        assertEquals("gemini-3.1-flash-lite", r.modelo());
     }
 
     @Test
