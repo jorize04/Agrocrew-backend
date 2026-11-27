@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
  *
  * Problema que resuelve: el resultado del motor de reglas (puntajes y factores) es técnico; la IA lo
  * convierte en una explicación breve y en lenguaje sencillo para el productor.
- * Modelo: Google Gemini (por defecto gemini-2.5-flash, configurable).
+ * Modelo: Google Gemini (por defecto gemini-3.5-flash-lite, configurable con IA_MODELO; si falla, se
+ * intenta el modelo de respaldo IA_MODELO_RESPALDO antes de usar la plantilla).
  * Datos que usa: solo los datos de la evaluación (suelo, altitud, clima, riesgo y ranking). No se envían
  * datos personales del usuario.
  * Límite: la IA solo redacta; nunca decide ni modifica el ranking. Si falla, se usa la plantilla.
@@ -39,15 +40,32 @@ public class ExplicacionIaService {
                                        List<MotorReglasService.ResultadoCultivo> ranking,
                                        MotorReglasService.ResultadoCultivo consultado) {
         if (!geminiClient.habilitado()) {
+            log.warn("IA desactivada (falta IA_API_KEY): la evaluación se explica con plantilla");
             return Optional.empty();
         }
+        String prompt = construirPrompt(predio, grupo, d, ranking, consultado);
         try {
-            String texto = geminiClient.generarTexto(construirPrompt(predio, grupo, d, ranking, consultado));
+            String texto = geminiClient.generarTexto(prompt);
+            log.info("Explicación redactada con IA ({})", geminiClient.getModelo());
             return Optional.of(new Resultado(texto, geminiClient.getModelo()));
         } catch (IntegracionException e) {
-            log.warn("La IA no respondió; se usará la explicación con plantilla: {}", e.getMessage());
-            return Optional.empty();
+            log.warn("El modelo de IA {} falló: {}", geminiClient.getModelo(), e.getMessage());
         }
+        // Segundo intento con el modelo de respaldo antes de caer a la plantilla.
+        String respaldo = geminiClient.getModeloRespaldo();
+        if (respaldo != null && !respaldo.isBlank() && !respaldo.equals(geminiClient.getModelo())) {
+            try {
+                String texto = geminiClient.generarTexto(prompt, respaldo);
+                if (texto != null && !texto.isBlank()) {
+                    log.info("Explicación redactada con IA (modelo de respaldo {})", respaldo);
+                    return Optional.of(new Resultado(texto, respaldo));
+                }
+            } catch (IntegracionException e) {
+                log.warn("El modelo de respaldo {} también falló: {}", respaldo, e.getMessage());
+            }
+        }
+        log.warn("La IA no respondió; se usará la explicación con plantilla");
+        return Optional.empty();
     }
 
     String construirPrompt(Predio predio, GrupoCum grupo, MotorReglasService.DatosPredio d,
