@@ -108,4 +108,3 @@ public class ReporteServiceImpl implements ReporteService {
         return total == 0 ? 0 : Math.round(parte * 1000.0 / total) / 10.0;
     }
 }
-

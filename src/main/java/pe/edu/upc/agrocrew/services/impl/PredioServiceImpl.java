@@ -123,4 +123,3 @@ public class PredioServiceImpl implements PredioService {
         return dto;
     }
 }
-
