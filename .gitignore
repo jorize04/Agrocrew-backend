@@ -5,8 +5,9 @@ target/
 logs/
 *.log
 
-# Archivos locales
+# Archivos locales (credenciales)
 .env
+config/local.properties
 
 # IntelliJ IDEA
 .idea/

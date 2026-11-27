@@ -1,0 +1,7 @@
+# Copia este archivo como config/local.properties y pon tus valores locales (no se sube a GitHub).
+# En producción se usan variables de entorno: DB_URL, DB_USERNAME, DB_PASSWORD, JWT_SECRET, ADMIN_EMAIL,
+# ADMIN_PASSWORD, CORS_ORIGINS, IA_API_KEY e IA_MODELO.
+DB_PASSWORD=tu_contraseña_de_postgres
+# Clave en Base64 de al menos 32 bytes. Genérala, por ejemplo, con: openssl rand -base64 48
+JWT_SECRET=CAMBIAR_POR_UNA_CLAVE_BASE64
+ADMIN_PASSWORD=CAMBIAR
